@@ -3,7 +3,7 @@ import React from 'react'
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 
 interface PriceProps {
-    price: string,
+    price: number,
     currency: string,
 }
 
@@ -18,13 +18,17 @@ const PaymentFooter: React.FC<PaymentFooterProps> = ({
     buttonPressHandler, 
     buttonTitle 
 }) => {
+
+    
   return (
+
     <View style={styles.PriceFooter}>
       
       <View style={styles.PriceContainer}> 
         <Text style={styles.PriceTitle}> Prices </Text>
         <Text style={styles.PriceText}>
-            {price.currency} <Text style={styles.Price}> {price.price} </Text> 
+            {price.currency} 
+            <Text style={styles.Price}> {price.price} </Text> 
         </Text>
       </View>
 

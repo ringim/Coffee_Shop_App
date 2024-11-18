@@ -58,11 +58,17 @@ export const useStore = create(
                         state.CartList.push(cartItem);
                     } 
                 
+                    // Calculate the cart price after adding the item
+                 //state.calculateCartPrice(); // Ensure this is called to update CartPrice
+                
             })
         ),
 
         // Calculate Cart Price
         calculateCartPrice: () => set(produce(state => {
+            // const totalPrice =state.CartList.reduce((acum,currentValue)=>acum+currentValue.price,0)
+  
+           
             let totalprice = 0;
             
             // Loop through the CartList to calculate the total price
@@ -71,13 +77,12 @@ export const useStore = create(
                 
                 // Calculate the price for each item based on its quantity
                 for (let j = 0; j < state.CartList[i].prices.length; j++) {
-                    tempprice += parseFloat(state.CartList[i].prices[j].Price) *
-                        state.CartList[i].prices[j].quantity; // Corrected index from i to j
+                    tempprice += parseFloat(state.CartList[i].prices[j].price) * state.CartList[i].prices[j].quantity; // Corrected index from i to j
                 }
-                state.CartList[i].itemPrice = tempprice.toFixed(2).toString(); // Store the item price
+                state.CartList[i].itemPrice = tempprice.toFixed(2); // Store the item price
                 totalprice += tempprice; // Accumulate the total price
             }
-            state.CartPrice = totalprice.toFixed(2).toString(); // Update the total cart price
+            state.CartPrice = totalprice.toFixed(2); // Update the total cart price
         })),
 
         addToFavoriteList: (type: string, id: string) =>
@@ -146,8 +151,79 @@ export const useStore = create(
                     }
                  state.FavoriteList.splice(spliceIndex, 1);
                 }
-            }))
+            })),
 
+
+            incrementCartItemQuantity: (id : string, size: string) => 
+                set(produce(state => {
+                    for (let i = 0; i < state.CartList.length; i++) {
+                        if (state.CartList[i].id == id) {
+                            for(let j=0; j<state.CartList[i].prices.length;j++){
+                                if(state.CartList[i].prices[j].size == size){
+                                    state.CartList[i].prices[j].quantity += 1;
+                                    break;
+                                }
+                            }
+                        }
+
+                    }
+            }
+            )),
+
+            decrementCartItemQuantity: (id: string, size: string) =>
+                set(
+                  produce(state => {
+                    for (let i = 0; i < state.CartList.length; i++) {
+                      if (state.CartList[i].id === id) {
+                        for (let j = 0; j < state.CartList[i].prices.length; j++) {
+                          if (state.CartList[i].prices[j].size === size) {
+                            // Check if the quantity is greater than 1
+                            if (state.CartList[i].prices[j].quantity > 1) {
+                              state.CartList[i].prices[j].quantity--; // Just decrement the quantity
+                            } else {
+                              // If quantity is 1, remove the specific size option from prices
+                              state.CartList[i].prices.splice(j, 1);
+                            }
+              
+                            // If no sizes are left in the prices array, remove the product from CartList
+                            if (state.CartList[i].prices.length === 0) {
+                              state.CartList.splice(i, 1);
+                            }
+                            break;
+                          }
+                        }
+                        break;
+                      }
+                    }
+                  })
+                ),
+              
+
+                addToOrderHistoryFromCart : () => set(produce(state => {
+                    produce(state => {
+                        let temp = state.CartList.reduce(
+                            (accumulator: number, currentValue: any) =>
+                                accumulator + parseFloat(currentValue.itemPrice),
+                            0,
+                        );
+
+                        if(state.OrderHistoryList.length > 0){
+                            state.OrderHistoryList.unshift({
+                                OrderDate: new Date().toDateString() + ' ' + new Date().toLocaleTimeString(),
+                                CartList: state.CartList,
+                                CartListPrice: temp.toFixed(2).toString(),
+                            });
+                        }
+                        else{
+                            state.OrderHistoryList.push({
+                                OrderDate: new Date().toDateString() + ' ' + new Date().toLocaleTimeString(),
+                                CartList: state.CartList,
+                                CartListPrice: temp.toFixed(2).toString(),
+                            });
+                        }
+                        state.CartList = [];
+                    })
+                }))
 
         }),
         {

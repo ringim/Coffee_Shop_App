@@ -116,42 +116,34 @@ export const useStore = create(
                     }
                 }),
             ),
-            deleteFromFavouriteList: (type : string, id : string) => set(produce(state => {
-                if(type == 'Coffee'){
-                    for (let i = 0; i < state.CoffeeList.length; i++) {
-                        if (state.CoffeeList[i].id == id) {
-                           
-                            if (state.CoffeeList[i].favourite == true) {
-                                state.CoffeeList[i].favourite = false; 
-                                
-                            }
-                            break;
+            
+            deleteFromFavouriteList: (type: string, id: string) =>
+                set(
+                  produce((state) => {
+                    // Update the `favourite` field in the CoffeeList or BeanList
+                    if (type === 'Coffee') {
+                      for (let i = 0; i < state.CoffeeList.length; i++) {
+                        if (state.CoffeeList[i].id === id) {
+                          state.CoffeeList[i].favourite = false;
+                          break;
                         }
-                    }
-                } else {
-                    if(type == 'Bean'){
-                        for (let i = 0; i < state.BeanList.length; i++) {
-                            if (state.BeanList[i].id == id) {
-                  
-                                if (state.BeanList[i].favourite == true) {
-                                    state.BeanList[i].favourite = false; 
-                                    
-                                }
-                                break;
-                            }
+                      }
+                    } else if (type === 'Bean') {
+                      for (let i = 0; i < state.BeanList.length; i++) {
+                        if (state.BeanList[i].id === id) {
+                          state.BeanList[i].favourite = false;
+                          break;
                         }
+                      }
                     }
-
-                    let spliceIndex = -1;
-                    for(let i = 0; i <state.FavoriteList.length;i ++){
-                        if(state.FavoriteList[i].id == id){
-                            spliceIndex = i;
-                            break;
-                        }
-                    }
-                 state.FavoriteList.splice(spliceIndex, 1);
-                }
-            })),
+              
+                    // Remove the item from the FavouriteList
+                    state.FavouriteList = state.FavouriteList.filter(
+                      (item: any) => !(item.id === id && item.type === type)
+                    );
+                  })
+                ),
+              
 
 
             incrementCartItemQuantity: (id : string, size: string) => 
